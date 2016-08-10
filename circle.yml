@@ -1,0 +1,15 @@
+machine:
+
+  timezone:
+    America/Los_Angeles # Set the timezone
+
+  # Version of ruby to use
+  ruby:
+    version:
+      2.1.5
+
+test:
+  override:
+    - bundle exec rubocop
+    - mkdir -p $CIRCLE_TEST_REPORTS/rspec
+    - bundle exec rspec --format RspecJunitFormatter --out $CIRCLE_TEST_REPORTS/rspec/rspec.xml spec --format progress

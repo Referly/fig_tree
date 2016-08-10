@@ -22,7 +22,7 @@ module AppConfig
 
   def valid?
     _, unset = @__required_parameters__.partition { |p| !public_send(p).nil? }
-    fail "All required configurations have not been set. Missing configurations: #{unset.join(',')}" if unset.any?
+    raise "All required configurations have not been set. Missing configurations: #{unset.join(',')}" if unset.any?
   end
 
   module_function :config, :parameter, :valid?

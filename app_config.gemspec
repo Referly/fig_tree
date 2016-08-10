@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split("\n") - %w[Gemfile Gemfile.lock]
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.homepage =
-      "https://github.com/Referly/app_config"
+    "https://github.com/Referly/app_config"
   s.add_development_dependency "rspec", "~> 3.2"
   s.add_development_dependency "rb-readline", "~> 0.5", ">= 0.5.3"
   s.add_development_dependency "byebug", "~> 3.5"

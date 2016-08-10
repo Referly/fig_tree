@@ -1,0 +1,86 @@
+inherit_from: .rubocop_todo.yml
+
+Style/MutableConstant:
+  Enabled: false
+
+Lint/UselessAssignment:
+  Enabled: true
+
+Lint/UnusedMethodArgument:
+  Enabled: true
+
+Lint/UnusedBlockArgument:
+  Enabled: true
+
+Metrics/AbcSize:
+  Exclude:
+    - spec/**/*
+
+Style/DotPosition:
+  Enabled: true
+  EnforcedStyle: trailing
+
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    '%':  ()    # interpolated String
+    '%i': '[]'  # Array of symbols
+    '%q': ()    # Single quoted string
+    '%Q': ()    # Double quoted string
+    '%r': '{}'  # Regex
+    '%s': ()    # Symbol
+    '%w': '[]'  # Array of strings
+    '%W': '[]'  # Array of strings, interpolated
+    '%x': ()    # shell command
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/CollectionMethods:
+  Enabled: true
+  # Mapping from undesired method to desired_method
+  # e.g. use `detect` over `find`:
+  PreferredMethods:
+    find: 'detect'
+    find_all: 'select'
+
+Style/AlignHash:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+
+Style/AndOr:
+  # Whether `and` and `or` are banned only in conditionals (conditionals)
+  # or completely (always).
+  EnforcedStyle: conditionals # and/or are sometimes used for flow control.
+
+Style/BlockDelimiters:
+  EnforcedStyle: semantic
+
+Style/HashSyntax:
+  EnforcedStyle: ruby19_no_mixed_keys
+
+Style/NumericLiterals:
+  MinDigits: 5
+
+Style/SpaceBeforeFirstArg:
+  Enabled: false
+
+# Configuration parameters: EnforcedStyleForMultiline, SupportedStyles.
+Style/TrailingCommaInLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/SingleLineBlockParams:
+  Enabled: false
+
+Style/EachWithObject:
+  Enabled: false
+
+Style/Lambda:
+  Enabled: false
+
+Metrics/LineLength:
+  Exclude:
+    - spec/mocks.rb
+
+Metrics/MethodLength:
+  Exclude:
+    - spec/mocks.rb
