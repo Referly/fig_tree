@@ -4,7 +4,7 @@ describe AppConfig do
   describe "configuring AppConfig" do
     describe ".configure" do
       it "yields AppConfig to the given block" do
-        expect { |b| described_class.configure(&b) }.to yield_with_args described_class
+        expect { |b| described_class.configure(&b) }.to yield_with_args AppConfig::ConfigurationContainer
       end
 
       it "is where you should specify the configuration parameters" do
@@ -30,7 +30,7 @@ describe AppConfig do
           end
           described_class.doggyz = "poodle"
           described_class.valid?
-        }.to yield_with_args described_class
+        }.to yield_with_args AppConfig::ConfigurationContainer
       end
 
       it "is possible to perform actions based on the latest state of the AppConfig" do
@@ -49,6 +49,21 @@ describe AppConfig do
         described_class.doggyz = "poodle"
         described_class.valid?
         expect(described_class.is_a_poodle).to eq true
+      end
+
+      context "when .configure is called more than once" do
+        it "resets the configuration each time" do
+          described_class.configure do |c|
+            c.parameter :cats
+          end
+          expect(described_class).to respond_to :cats, :cats=
+
+          described_class.configure do |c|
+            c.parameter :mice
+          end
+          expect(described_class).to respond_to :mice, :mice=
+          expect(described_class).not_to respond_to :cats, :cats=
+        end
       end
     end
   end

@@ -1,39 +1,94 @@
-module AppConfig
-  class MissingConfigurationError < StandardError; end
-  # Appdata provides a basic single-method DSL with .parameter method
-  # being used to define a set of available settings.
-  # This method takes one or more symbols, with each one being
-  # a name of the configuration option.
-  attr_accessor :__required_parameters__,
-                :__after_validation_callbacks__
+class AppConfig
+  MissingConfigurationError = Class.new StandardError
+  DuplicateParameterDefinitionError = Class.new StandardError
 
-  def parameter(name, options = {})
-    attr_accessor name
-    module_function name
-    module_function "#{name}="
-    @__required_parameters__ ||= []
-    @__required_parameters__ << name if options[:required]
-  end
+  class << self
+    attr_accessor :configuration
 
-  # And we define a wrapper for the configuration block, that we'll use to set up
-  # our set of options
-  def configure
-    yield self if block_given?
-  end
+    # And we define a wrapper for the configuration block, that we'll use to set up
+    # our set of options
+    def configure
+      @configuration = ConfigurationContainer.new
+      yield configuration if block_given?
+    end
 
-  def valid?
-    _, unset = @__required_parameters__.partition { |p| !public_send(p).nil? }
-    raise MissingConfigurationError,
-          "All required configurations have not been set. Missing configurations: #{unset.join(',')}" if unset.any?
-    Array(@__after_validation_callbacks__).each do |callback|
-      callback.call self
+    def configuration
+      @configuration ||= ConfigurationContainer.new
+    end
+
+    def method_missing(method_name, *args, &blk)
+      return super unless configuration.respond_to? method_name
+      configuration.send method_name, *args, &blk
+    end
+
+    def respond_to_missing?(method, _include_private = false)
+      configuration.respond_to?(method) || super
     end
   end
 
-  def after_validation(&blk)
-    @__after_validation_callbacks__ ||= []
-    @__after_validation_callbacks__ << blk
-  end
+  class ConfigurationContainer
+    attr_accessor :parameters,
+                  :after_validation_callbacks
 
-  module_function :configure, :parameter, :valid?, :after_validation
+    def parameter(name, options = {})
+      @parameters ||= []
+      raise DuplicateParameterDefinitionError if parameters.any? { |p| p.keys.first == name }
+      parameters << { name: name.to_s, options: options, value: nil }
+    end
+
+    def valid?
+      _missing_configuration if _invalid_parameters.any?
+      Array(@after_validation_callbacks).each do |callback|
+        callback.call self
+      end
+    end
+
+    def after_validation(&blk)
+      @after_validation_callbacks ||= []
+      @after_validation_callbacks << blk
+    end
+
+    def method_missing(method_name, *args, &blk)
+      method_name_str = method_name.to_s
+      return super unless _dynamically_exposed_methods.include? method_name_str
+      if _dynamically_exposed_readers.include? method_name_str
+        parameters.detect { |p| p[:name] == method_name_str }[:value]
+      elsif _dynamically_exposed_writers.include? method_name_str
+        parameters.detect { |p| "#{p[:name]}=" == method_name_str }[:value] = args.first
+      end
+    end
+
+    def respond_to_missing?(method_name, _include_private = false)
+      _dynamically_exposed_methods.include?(method_name.to_s) || super
+    end
+
+    private
+
+    def _missing_configuration
+      raise MissingConfigurationError,
+            "All required configurations have not been set. Missing configurations: #{_invalid_parameter_names}"
+    end
+
+    def _dynamically_exposed_methods
+      _dynamically_exposed_readers | _dynamically_exposed_writers
+    end
+
+    def _dynamically_exposed_readers
+      parameters.map { |p| p[:name] }
+    end
+
+    def _dynamically_exposed_writers
+      parameters.map { |p| "#{p[:name]}=" }
+    end
+
+    def _invalid_parameters
+      parameters.
+        select { |p| p[:options].fetch(:required, false) }.
+        select { |p| send(p[:name]).nil? }
+    end
+
+    def _invalid_parameter_names
+      _invalid_parameters.map { |p| p[:name] }.join(",")
+    end
+  end
 end
