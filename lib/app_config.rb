@@ -52,12 +52,14 @@ class AppConfig
     def valid?
       @validating = true
       _missing_configuration if _invalid_parameters.any?
+      # Set validated to true to block changes to parameters with on_validation locks
+      # including those in after_validation callbacks
+      @validated = true
       Array(@after_validation_callbacks).each do |callback|
         callback.call self
       end
       # Below line is the final_validation lifecycle event
       _missing_configuration if _invalid_parameters.any?
-      @validated = true
       @validating = false
       @validated
     end
@@ -101,6 +103,10 @@ class AppConfig
         false
       when :on_set
         parameter[:set]
+      when :on_validation
+        validated
+      when :on_ready
+        readied
       else
         raise InvalidLockOptionError
       end

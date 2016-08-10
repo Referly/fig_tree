@@ -130,7 +130,7 @@ describe AppConfig do
     end
 
     context "when the :on_set lock is used" do
-      it "prevents mutation the parameter once it has been set" do
+      it "prevents mutation of the parameter once it has been set" do
         described_class.configure do |c|
           c.parameter :foo, lock: :on_set
         end
@@ -138,6 +138,47 @@ describe AppConfig do
         expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
         described_class.valid?
         expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+        described_class.ready
+        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+      end
+    end
+
+    context "when the :on_validation lock is used" do
+      it "prevents mutation of the parameter after validation" do
+        described_class.configure do |c|
+          c.parameter :foo, lock: :on_validation
+        end
+        described_class.foo = "foo"
+        expect { described_class.foo = "foo" }.not_to raise_error
+        described_class.valid?
+        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+        described_class.ready
+        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+      end
+
+      it "prevents mutation of the parameter in after_validation callbacks" do
+        described_class.configure do |c|
+          c.parameter :foo, lock: :on_validation
+          c.after_validation do |config_after_validation|
+            expect { config_after_validation.foo = "foo" }.
+              to raise_error AppConfig::CannotModifyLockedParameterError
+          end
+        end
+        described_class.foo = "foo"
+        expect { described_class.foo = "foo" }.not_to raise_error
+        described_class.valid?
+      end
+    end
+
+    context "when the :on_ready lock is used" do
+      it "prevents mutation of the parameter after the AppConfig is readied" do
+        described_class.configure do |c|
+          c.parameter :foo, lock: :on_ready
+        end
+        described_class.foo = "foo"
+        expect { described_class.foo = "foo" }.not_to raise_error
+        described_class.valid?
+        expect { described_class.foo = "foo" }.not_to raise_error
         described_class.ready
         expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
       end
