@@ -1,6 +1,8 @@
 class AppConfig
   MissingConfigurationError = Class.new StandardError
   DuplicateParameterDefinitionError = Class.new StandardError
+  CannotModifyLockedParameterError = Class.new StandardError
+  InvalidLockOptionError = Class.new StandardError
 
   class << self
     attr_accessor :configuration
@@ -44,7 +46,7 @@ class AppConfig
     def parameter(name, options = {})
       @parameters ||= []
       raise DuplicateParameterDefinitionError if parameters.any? { |p| p.keys.first == name }
-      parameters << { name: name.to_s, options: options, value: nil }
+      parameters << { name: name.to_s, options: options, value: nil, set: false }
     end
 
     def valid?
@@ -82,9 +84,9 @@ class AppConfig
       method_name_str = method_name.to_s
       return super unless _dynamically_exposed_methods.include? method_name_str
       if _dynamically_exposed_readers.include? method_name_str
-        parameters.detect { |p| p[:name] == method_name_str }[:value]
+        _ghost_reader method_name_str, *args, &blk
       elsif _dynamically_exposed_writers.include? method_name_str
-        parameters.detect { |p| "#{p[:name]}=" == method_name_str }[:value] = args.first
+        _ghost_writer method_name_str, *args, &blk
       end
     end
 
@@ -92,7 +94,31 @@ class AppConfig
       _dynamically_exposed_methods.include?(method_name.to_s) || super
     end
 
+    def locked?(parameter)
+      lock_option = parameter[:options].fetch(:lock, nil)
+      case lock_option
+      when nil
+        false
+      when :on_set
+        parameter[:set]
+      else
+        raise InvalidLockOptionError
+      end
+    end
+
     private
+
+    def _ghost_reader(method_name_str, *_args)
+      parameters.detect { |p| p[:name] == method_name_str }[:value]
+    end
+
+    def _ghost_writer(method_name_str, *args)
+      parameter = parameters.detect { |p| "#{p[:name]}=" == method_name_str }
+      raise CannotModifyLockedParameterError if locked? parameter
+      parameter[:value] = args.first
+      parameter[:set] = true
+      parameter[:value]
+    end
 
     def _missing_configuration
       raise MissingConfigurationError,

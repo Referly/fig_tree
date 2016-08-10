@@ -24,7 +24,7 @@ describe AppConfig::ConfigurationContainer do
           subject.foo = "foo"
           subject.validating = true
           expect(subject.send(:_invalid_parameters)).
-            to eq [{ name: "bar", options: { required: true }, value: nil }]
+            to eq [{ name: "bar", options: { required: true }, value: nil, set: false }]
         end
       end
     end

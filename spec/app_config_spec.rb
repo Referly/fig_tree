@@ -116,6 +116,43 @@ describe AppConfig do
     end
   end
 
+  describe "parameter locking" do
+    it "defaults to no lock" do
+      described_class.configure do |c|
+        c.parameter :foo
+      end
+      described_class.foo = "foo"
+      expect { described_class.foo = "foo" }.not_to raise_error
+      described_class.valid?
+      expect { described_class.foo = "foo" }.not_to raise_error
+      described_class.ready
+      expect { described_class.foo = "foo" }.not_to raise_error
+    end
+
+    context "when the :on_set lock is used" do
+      it "prevents mutation the parameter once it has been set" do
+        described_class.configure do |c|
+          c.parameter :foo, lock: :on_set
+        end
+        described_class.foo = "foo"
+        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+        described_class.valid?
+        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+        described_class.ready
+        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+      end
+    end
+
+    context "when the specified lock option is unexpected" do
+      it "raises an InvalidLockOptionError" do
+        described_class.configure do |c|
+          c.parameter :foo, lock: :blahblah
+        end
+        expect { described_class.foo = "foo" }.to raise_error AppConfig::InvalidLockOptionError
+      end
+    end
+  end
+
   describe "lifecycle events" do
     describe "ready" do
       context "before the ready lifecycle event" do
