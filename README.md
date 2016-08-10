@@ -1,2 +1,2 @@
 # app_config
-Ruby Application Configurator
+Ruby Application Configurator with some validation support
