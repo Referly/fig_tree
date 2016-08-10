@@ -9,7 +9,9 @@ class AppConfig
     # our set of options
     def configure
       @configuration = ConfigurationContainer.new
+      @configuration.configuring = true
       yield configuration if block_given?
+      @configuration.configuring = false
     end
 
     def configuration
@@ -28,7 +30,16 @@ class AppConfig
 
   class ConfigurationContainer
     attr_accessor :parameters,
-                  :after_validation_callbacks
+                  :after_validation_callbacks,
+                  :configuring,
+                  :validating,
+                  :readied, # set to true during the ready lifecycle event
+                  :validated # set to true during the validation lifecycle event
+
+    def initialize
+      @configuring = false
+      @validating = false
+    end
 
     def parameter(name, options = {})
       @parameters ||= []
@@ -37,10 +48,27 @@ class AppConfig
     end
 
     def valid?
+      @validating = true
       _missing_configuration if _invalid_parameters.any?
       Array(@after_validation_callbacks).each do |callback|
         callback.call self
       end
+      @validated = true
+      @validating = false
+      @validated
+    end
+
+    def validated
+      @validated ||= false
+    end
+
+    def ready
+      valid?
+      @readied = true
+    end
+
+    def readied
+      @readied ||= false
     end
 
     def after_validation(&blk)
@@ -74,7 +102,7 @@ class AppConfig
     end
 
     def _dynamically_exposed_readers
-      parameters.map { |p| p[:name] }
+      (readied || configuring || validating) ? parameters.map { |p| p[:name] } : []
     end
 
     def _dynamically_exposed_writers
