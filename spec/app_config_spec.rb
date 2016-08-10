@@ -85,4 +85,29 @@ describe AppConfig do
       end
     end
   end
+
+  describe "callbacks" do
+    context "when validation is successful" do
+      it "invokes the registered callbacks in the order they were registered" do
+        described_class.configure do |c|
+          c.parameter :is_a_poodle
+          c.parameter :doggyz, required: true
+          c.after_validation do |validated_app_config|
+            validated_app_config.is_a_poodle = validated_app_config.doggyz == "poodle"
+          end
+          c.after_validation do |validated_app_config|
+            validated_app_config.doggyz = "buy a new dog" if validated_app_config.is_a_poodle
+          end
+        end
+
+        described_class.doggyz = "poodle"
+        described_class.is_a_poodle = false
+
+        described_class.valid?
+
+        expect(described_class.is_a_poodle).to be true
+        expect(described_class.doggyz).to eq "buy a new dog"
+      end
+    end
+  end
 end
