@@ -53,6 +53,8 @@ class AppConfig
       Array(@after_validation_callbacks).each do |callback|
         callback.call self
       end
+      # Below line is the final_validation lifecycle event
+      _missing_configuration if _invalid_parameters.any?
       @validated = true
       @validating = false
       @validated

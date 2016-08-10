@@ -91,6 +91,31 @@ describe AppConfig do
     end
   end
 
+  describe ".valid?" do
+    context "when a required parameter becomes nil during the invocation of an after_validation callback" do
+      it "raises AppConfig::MissingConfigurationError" do
+        described_class.configure do |c|
+          c.parameter :foo, required: true
+          c.after_validation do |config_after_validation|
+            config_after_validation.foo = nil
+          end
+        end
+        described_class.foo = "foo"
+        expect { described_class.valid? }.to raise_error AppConfig::MissingConfigurationError
+      end
+    end
+  end
+
+  describe ".ready" do
+    it "triggers validation" do
+      described_class.configure do |c|
+        c.parameter :foo
+      end
+      expect(described_class.configuration).to receive :valid?
+      described_class.ready
+    end
+  end
+
   describe "lifecycle events" do
     describe "ready" do
       context "before the ready lifecycle event" do
