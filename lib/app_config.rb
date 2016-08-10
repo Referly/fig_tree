@@ -4,7 +4,8 @@ module AppConfig
   # being used to define a set of available settings.
   # This method takes one or more symbols, with each one being
   # a name of the configuration option.
-  attr_accessor :__required_parameters__
+  attr_accessor :__required_parameters__,
+                :__after_validation_callbacks__
 
   def parameter(name, options = {})
     attr_accessor name
@@ -24,7 +25,15 @@ module AppConfig
     _, unset = @__required_parameters__.partition { |p| !public_send(p).nil? }
     raise MissingConfigurationError,
           "All required configurations have not been set. Missing configurations: #{unset.join(',')}" if unset.any?
+    Array(@__after_validation_callbacks__).each do |callback|
+      callback.call self
+    end
   end
 
-  module_function :configure, :parameter, :valid?
+  def after_validation(&blk)
+    @__after_validation_callbacks__ ||= []
+    @__after_validation_callbacks__ << blk
+  end
+
+  module_function :configure, :parameter, :valid?, :after_validation
 end

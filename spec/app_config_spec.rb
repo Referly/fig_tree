@@ -21,6 +21,35 @@ describe AppConfig do
         expect(described_class.fooz).to eq "yo fooz"
         expect(described_class.doggyz).to eq "pups"
       end
+
+      it "is where you should specify after_validation callbacks" do
+        expect { |b|
+          described_class.configure do |c|
+            c.parameter :doggyz, required: true
+            c.after_validation(&b)
+          end
+          described_class.doggyz = "poodle"
+          described_class.valid?
+        }.to yield_with_args described_class
+      end
+
+      it "is possible to perform actions based on the latest state of the AppConfig" do
+        described_class.configure do |c|
+          c.parameter :is_a_poodle
+          c.parameter :doggyz, required: true
+          c.after_validation do |validated_app_config|
+            validated_app_config.is_a_poodle = validated_app_config.doggyz == "poodle"
+          end
+        end
+
+        described_class.doggyz = "collie"
+        described_class.valid?
+        expect(described_class.is_a_poodle).to eq false
+
+        described_class.doggyz = "poodle"
+        described_class.valid?
+        expect(described_class.is_a_poodle).to eq true
+      end
     end
   end
   describe "adding a configuration parameter" do
