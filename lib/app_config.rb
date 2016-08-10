@@ -16,14 +16,15 @@ module AppConfig
 
   # And we define a wrapper for the configuration block, that we'll use to set up
   # our set of options
-  def config
+  def configure
     yield self if block_given?
   end
 
   def valid?
     _, unset = @__required_parameters__.partition { |p| !public_send(p).nil? }
-    raise "All required configurations have not been set. Missing configurations: #{unset.join(',')}" if unset.any?
+    raise MissingConfigurationError,
+          "All required configurations have not been set. Missing configurations: #{unset.join(',')}" if unset.any?
   end
 
-  module_function :config, :parameter, :valid?
+  module_function :configure, :parameter, :valid?
 end
