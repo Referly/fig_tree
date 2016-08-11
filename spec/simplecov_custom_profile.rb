@@ -1,4 +1,4 @@
 require "simplecov"
-SimpleCov.profiles.define "app_config" do
+SimpleCov.profiles.define "fig_fig" do
   add_filter "/spec"
 end

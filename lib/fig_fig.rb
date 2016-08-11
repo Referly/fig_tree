@@ -1,5 +1,5 @@
 # Top level class of the FigTree gem
-class FigTree
+class FigFig
   MissingConfigurationError           = Class.new StandardError
   DuplicateParameterDefinitionError   = Class.new StandardError
   CannotModifyLockedParameterError    = Class.new StandardError

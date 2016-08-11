@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    fig_tree (0.1.0)
+    fig_fig (0.2.0)
 
 GEM
   remote: https://rubygems.org/
@@ -58,7 +58,7 @@ PLATFORMS
 
 DEPENDENCIES
   byebug (~> 3.5)
-  fig_tree!
+  fig_fig!
   rb-readline (~> 0.5, >= 0.5.3)
   rspec (~> 3.2)
   rspec_junit_formatter (~> 0.2)
