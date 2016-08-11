@@ -1,6 +1,9 @@
 require "spec_helper"
 
 describe AppConfig do
+  before(:each) do
+    described_class.reset
+  end
   describe "configuring AppConfig" do
     describe ".configure" do
       it "yields AppConfig to the given block" do
@@ -55,16 +58,27 @@ describe AppConfig do
       end
 
       context "when .configure is called more than once" do
-        it "resets the configuration each time" do
+        it "raises a ConfigurationAlreadyDefinedError" do
           described_class.configure do |c|
             c.parameter :cats
-            expect(c).to respond_to :cats, :cats=
           end
 
-          described_class.configure do |c|
-            c.parameter :mice
-            expect(c).to respond_to :mice, :mice=
-            expect(c).not_to respond_to :cats, :cats=
+          expect { described_class.configure }.
+            to raise_error AppConfig::ConfigurationAlreadyDefinedError
+        end
+
+        context "when the reset: true option is supplied" do
+          it "resets the configuration" do
+            described_class.configure do |c|
+              c.parameter :cats
+              expect(c).to respond_to :cats, :cats=
+            end
+
+            described_class.configure(reset: true) do |c|
+              c.parameter :mice
+              expect(c).to respond_to :mice, :mice=
+              expect(c).not_to respond_to :cats, :cats=
+            end
           end
         end
       end

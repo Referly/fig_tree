@@ -1,15 +1,18 @@
 class AppConfig
-  MissingConfigurationError = Class.new StandardError
-  DuplicateParameterDefinitionError = Class.new StandardError
-  CannotModifyLockedParameterError = Class.new StandardError
-  InvalidLockOptionError = Class.new StandardError
+  MissingConfigurationError           = Class.new StandardError
+  DuplicateParameterDefinitionError   = Class.new StandardError
+  CannotModifyLockedParameterError    = Class.new StandardError
+  InvalidLockOptionError              = Class.new StandardError
+  ConfigurationAlreadyDefinedError    = Class.new StandardError
 
   class << self
     attr_accessor :configuration
 
     # And we define a wrapper for the configuration block, that we'll use to set up
     # our set of options
-    def configure
+    def configure(reset: nil)
+      self.reset if reset
+      raise ConfigurationAlreadyDefinedError if @configuration
       @configuration = ConfigurationContainer.new
       @configuration.configuring = true
       yield configuration if block_given?
@@ -18,6 +21,10 @@ class AppConfig
 
     def configuration
       @configuration ||= ConfigurationContainer.new
+    end
+
+    def reset
+      @configuration = nil
     end
 
     def method_missing(method_name, *args, &blk)

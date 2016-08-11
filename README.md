@@ -20,9 +20,12 @@ AppConfig.ready
 # => nil
 ```
 
-If you call `.configure` a second time it resets the AppConfig entirely,
-all existing parameter definitions and any set values will be lost. This true regardless
-of the current lifecycle stage of the config. However callbacks you register in the
+If you call `.configure` a second time it raises a ConfigurationAlreadyDefinedError.
+To reset the configuration definition so that it can be redefined pass the `reset: true` option
+ to `.configure`. If you do supply the `reset: true` option, all existing parameter definitions 
+ and any set values will be lost. This true regardless of the current lifecycle stage of the config. 
+ 
+Despite the restriction against calling `.configure` more than once, callbacks you register in the
 block passed to `.configure` can modify any parameter value (unless the parameter is locked),
 read any parameter value, and even register additional parameters (advanced).
 
@@ -39,6 +42,10 @@ AppConfig.foo = bar
 AppConfig.foo
 # => "bar"
 AppConfig.configure do |c|
+    c.parameter :baz    
+end
+# => raises ConfigurationAlreadyDefinedError
+AppConfig.configure(reset: true) do |c|
     c.parameter :baz    
 end
 AppConfig.foo = "foo"
