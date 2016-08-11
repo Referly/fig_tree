@@ -1,3 +1,3 @@
-class FigTree
-  VERSION = "0.1.1"
+class FigFig
+  VERSION = "0.2.0"
 end

@@ -3,7 +3,7 @@ $LOAD_PATH.push File.expand_path("../lib", __FILE__)
 require "fig_tree/version"
 
 Gem::Specification.new do |s|
-  s.name        = "fig_tree"
+  s.name        = "fig_fig"
   s.version     = FigTree::VERSION
   s.date        = "2016-08-09"
   s.summary     = "Ruby Application Configurator"
