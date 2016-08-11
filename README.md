@@ -1,6 +1,8 @@
 # app_config
 Ruby Application Configurator with some validation support
 
+[![CircleCI](https://circleci.com/gh/Referly/app_config.svg?style=svg&circle-token=dcbf1b67dfb9258df370f8f25f7b19156fe3e93e)](https://circleci.com/gh/Referly/app_config)
+
 ## Usage
 
 Follow this example to perform basic configuration and validation of
