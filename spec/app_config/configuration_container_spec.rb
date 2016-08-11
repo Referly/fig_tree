@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe AppConfig::ConfigurationContainer do
+describe FigTree::ConfigurationContainer do
   describe "registering a new parameter" do
     it "registers a setter" do
       subject.parameter :foo

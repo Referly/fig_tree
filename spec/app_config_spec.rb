@@ -1,13 +1,13 @@
 require "spec_helper"
 
-describe AppConfig do
+describe FigTree do
   before(:each) do
     described_class.reset
   end
   describe "configuring AppConfig" do
     describe ".configure" do
       it "yields AppConfig to the given block" do
-        expect { |b| described_class.configure(&b) }.to yield_with_args AppConfig::ConfigurationContainer
+        expect { |b| described_class.configure(&b) }.to yield_with_args FigTree::ConfigurationContainer
       end
 
       it "is where you should specify the configuration parameters" do
@@ -17,7 +17,7 @@ describe AppConfig do
         end
 
         described_class.fooz = "yo fooz"
-        expect { described_class.ready }.to raise_error AppConfig::MissingConfigurationError
+        expect { described_class.ready }.to raise_error FigTree::MissingConfigurationError
         described_class.doggyz = "pups"
         expect { described_class.ready }.not_to raise_error
 
@@ -35,7 +35,7 @@ describe AppConfig do
           end
           described_class.doggyz = "poodle"
           described_class.ready
-        }.to yield_with_args AppConfig::ConfigurationContainer
+        }.to yield_with_args FigTree::ConfigurationContainer
       end
 
       it "is possible to perform actions based on the latest state of the AppConfig" do
@@ -64,7 +64,7 @@ describe AppConfig do
           end
 
           expect { described_class.configure }.
-            to raise_error AppConfig::ConfigurationAlreadyDefinedError
+            to raise_error FigTree::ConfigurationAlreadyDefinedError
         end
 
         context "when the reset: true option is supplied" do
@@ -95,7 +95,7 @@ describe AppConfig do
             c.parameter :foo, required: true
           end
 
-          expect { described_class.ready }.to raise_error AppConfig::MissingConfigurationError
+          expect { described_class.ready }.to raise_error FigTree::MissingConfigurationError
 
           described_class.foo = :bar
 
@@ -115,7 +115,7 @@ describe AppConfig do
           end
         end
         described_class.foo = "foo"
-        expect { described_class.valid? }.to raise_error AppConfig::MissingConfigurationError
+        expect { described_class.valid? }.to raise_error FigTree::MissingConfigurationError
       end
     end
   end
@@ -149,11 +149,11 @@ describe AppConfig do
           c.parameter :foo, lock: :on_set
         end
         described_class.foo = "foo"
-        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+        expect { described_class.foo = "foo" }.to raise_error FigTree::CannotModifyLockedParameterError
         described_class.valid?
-        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+        expect { described_class.foo = "foo" }.to raise_error FigTree::CannotModifyLockedParameterError
         described_class.ready
-        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+        expect { described_class.foo = "foo" }.to raise_error FigTree::CannotModifyLockedParameterError
       end
     end
 
@@ -165,9 +165,9 @@ describe AppConfig do
         described_class.foo = "foo"
         expect { described_class.foo = "foo" }.not_to raise_error
         described_class.valid?
-        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+        expect { described_class.foo = "foo" }.to raise_error FigTree::CannotModifyLockedParameterError
         described_class.ready
-        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+        expect { described_class.foo = "foo" }.to raise_error FigTree::CannotModifyLockedParameterError
       end
 
       it "prevents mutation of the parameter in after_validation callbacks" do
@@ -175,7 +175,7 @@ describe AppConfig do
           c.parameter :foo, lock: :on_validation
           c.after_validation do |config_after_validation|
             expect { config_after_validation.foo = "foo" }.
-              to raise_error AppConfig::CannotModifyLockedParameterError
+              to raise_error FigTree::CannotModifyLockedParameterError
           end
         end
         described_class.foo = "foo"
@@ -194,7 +194,7 @@ describe AppConfig do
         described_class.valid?
         expect { described_class.foo = "foo" }.not_to raise_error
         described_class.ready
-        expect { described_class.foo = "foo" }.to raise_error AppConfig::CannotModifyLockedParameterError
+        expect { described_class.foo = "foo" }.to raise_error FigTree::CannotModifyLockedParameterError
       end
     end
 
@@ -203,7 +203,7 @@ describe AppConfig do
         described_class.configure do |c|
           c.parameter :foo, lock: :blahblah
         end
-        expect { described_class.foo = "foo" }.to raise_error AppConfig::InvalidLockOptionError
+        expect { described_class.foo = "foo" }.to raise_error FigTree::InvalidLockOptionError
       end
     end
   end

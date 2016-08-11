@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    app_config (0.1.0)
+    fig_tree (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -57,8 +57,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  app_config!
   byebug (~> 3.5)
+  fig_tree!
   rb-readline (~> 0.5, >= 0.5.3)
   rspec (~> 3.2)
   rspec_junit_formatter (~> 0.2)

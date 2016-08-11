@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 $LOAD_PATH.push File.expand_path("../lib", __FILE__)
-require "app_config/version"
+require "fig_tree/version"
 
 Gem::Specification.new do |s|
-  s.name        = "app_config"
-  s.version     = AppConfig::VERSION
+  s.name        = "fig_tree"
+  s.version     = FigTree::VERSION
   s.date        = "2016-08-09"
   s.summary     = "Ruby Application Configurator"
   s.description = "Configurator for Ruby Applications with some validation and sugars."
@@ -12,8 +12,9 @@ Gem::Specification.new do |s|
   s.email       = "engineering@mattermark.com"
   s.files         = `git ls-files`.split("\n") - %w[Gemfile Gemfile.lock]
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.license = "MIT"
   s.homepage =
-    "https://github.com/Referly/app_config"
+    "https://github.com/Referly/fig_tree"
   s.add_development_dependency "rspec", "~> 3.2"
   s.add_development_dependency "rb-readline", "~> 0.5", ">= 0.5.3"
   s.add_development_dependency "byebug", "~> 3.5"

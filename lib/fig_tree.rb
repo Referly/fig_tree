@@ -1,4 +1,5 @@
-class AppConfig
+# Top level class of the FigTree gem
+class FigTree
   MissingConfigurationError           = Class.new StandardError
   DuplicateParameterDefinitionError   = Class.new StandardError
   CannotModifyLockedParameterError    = Class.new StandardError
@@ -37,6 +38,7 @@ class AppConfig
     end
   end
 
+  # The class that encapsulates the current configuration definition and parameter values
   class ConfigurationContainer
     attr_accessor :parameters,
                   :after_validation_callbacks,
